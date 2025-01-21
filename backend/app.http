@@ -1,0 +1,38 @@
+### Recuperar todas las recetas
+GET http://localhost:3000/recetas
+
+### Recuperar una receta por ID
+GET http://localhost:3000/recetas/678f2c6dbe39fda40af74bcf
+
+### Crear una receta con POST
+POST http://localhost:3000/guardar-receta
+Content-Type: application/json
+
+{
+  "titulo": "Papas Gratinadas",
+  "descripcion": "Papas con una deliciosa capa de queso gratinado.",
+  "ingredientes": "Papas, Queso, Crema, Sal",
+  "preparacion": "Cortar las papas, añadir queso y crema, y gratinar en el horno.",
+  "estado": "pendiente",
+  "autor": "678f2bc6be39fda40af74bd0"
+}
+
+### Actualizar una receta
+PUT http://localhost:3000/recetas/678f2c6dbe39fda40af74bcf
+Content-Type: application/json
+
+{
+  "estado": "aprobada"
+}
+
+### Eliminar una receta
+DELETE http://localhost:3000/recetas/678f2c6dbe39fda40af74bd6
+
+### Subir una imagen para una receta
+POST http://localhost:3000/subir-imagen/ID_DE_RECETA
+Content-Type: multipart/form-data
+
+file: @/ruta/a/la/imagen.jpg
+
+### Obtener una imagen por su nombre
+GET http://localhost:3000/obtener-imagen/nombre_de_la_imagen.jpg
