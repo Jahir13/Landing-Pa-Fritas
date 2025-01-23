@@ -36,3 +36,20 @@ file: @/ruta/a/la/imagen.jpg
 
 ### Obtener una imagen por su nombre
 GET http://localhost:3000/obtener-imagen/nombre_de_la_imagen.jpg
+
+### Obtener todos los usuarios
+GET http://localhost:3000/users
+
+### Obtener un usuario por ID
+GET http://localhost:3000/users/678f2bc6be39fda40af74bd1
+
+### Crear un nuevo usuario
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "nombre": "Pamela Flores",
+  "email": "juan@papasfritas.com",
+  "contraseña": "hashedpassword3",
+  "rol": "usuario"
+}

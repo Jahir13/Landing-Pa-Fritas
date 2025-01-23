@@ -1,51 +1,59 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Inicio from '../components/Inicio.astro';
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+
+let loggedInUser = null;
+
+if (typeof window !== 'undefined') {
+  const userData = localStorage.getItem('user');
+  loggedInUser = userData ? JSON.parse(userData) : null;
+}
+
+const response = await fetch('http://localhost:3000/users');
+const users = await response.json();
 ---
 
 <Layout title="inicio">
 
-	<div class="grid min-h-[100dvh] grid-rows-[auto,1fr,auto]">
+    <div class="grid min-h-[100dvh] grid-rows-[auto,1fr,auto]">
 
-		<!-- Header -->
-		<header class="flex items-center justify-between bg-[#84B6F4] p-4">
-		  <div class="flex items-center">
-			<a href="/">
-				<img 
-				  src="logo.webp" 
-				  alt="Logo" 
-				  class="h-20 hover:scale-110 transition-transform duration-300"
-				>
-			</a>
-		  </div>
-		  <nav class="flex items-center space-x-6 ">
-			<a href="/producto" class="text-white font-bold">PRODUCTOS</a>
-			<a href="/recetas" class="text-white font-bold">RECETAS</a>
-			<a href="/encuentranos" class="text-white font-bold">ENCUÉNTRANOS</a>
-		  </nav>
-		  <nav>
-			<a href="#">Iniciar Sesion</a>
-		  </nav>
-		</header>
-		
-		<main>
-			<Inicio />	
-		</main>		
+        <header class="flex items-center justify-between bg-[#84B6F4] p-4">
+            <div class="flex items-center">
+            <a href="/">
+                <img 
+                src="logo.webp" 
+                alt="Logo" 
+                class="h-20 hover:scale-110 transition-transform duration-300"
+                >
+            </a>
+            </div>
+            <nav class="flex items-center space-x-6">
+            <a href="/producto" class="text-white font-bold">PRODUCTOS</a>
+            <a href="/recetas" class="text-white font-bold">RECETAS</a>
+            <a href="/encuentranos" class="text-white font-bold">ENCUÉNTRANOS</a>
+            </nav>
+            <nav>
+            {loggedInUser?.nombre 
+                ? <span class="text-white font-bold">Hola, {loggedInUser.nombre}</span>
+                : <a href="/iniciar-sesion" class="text-white font-bold">Iniciar Sesión</a>}
+            </nav>
+        </header>
 
-	  
-		<footer class="flex justify-around items-center bg-[#E6D588] py-4 mt-8">
-		  <div class="text-center">
-			<p class="font-bold">Contáctanos</p>
-		  </div>
-		  <div>
-			<p>Nuestras redes sociales</p>
-		  </div>
-		  <div class="text-center">
-			<p class="font-bold">Ven a vernos</p>
-		  </div>
-		</footer>
-	  </div>
-	
-</Layout>	
+        <main>
+            <Inicio />    
+        </main>        
+
+        <footer class="flex justify-around items-center bg-[#E6D588] py-4 mt-8">
+          <div class="text-center">
+            <p class="font-bold">Contáctanos</p>
+          </div>
+          <div>
+            <p>Nuestras redes sociales</p>
+          </div>
+          <div class="text-center">
+            <p class="font-bold">Ven a vernos</p>
+          </div>
+        </footer>
+      </div>
+
+</Layout>    

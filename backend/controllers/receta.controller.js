@@ -1,8 +1,7 @@
-const Receta = require('../models/receta'); // Importar el modelo de recetas
+const Receta = require('../models/receta.model');
 const fs = require('fs');
 const path = require('path');
 
-// Obtener todas las recetas
 exports.getRecetas = async (req, res) => {
   try {
     const recetas = await Receta.find();
@@ -12,7 +11,6 @@ exports.getRecetas = async (req, res) => {
   }
 };
 
-// Guardar una nueva receta
 exports.saveReceta = async (req, res) => {
   const { titulo, descripcion, ingredientes, preparacion, estado, autor } = req.body;
 
@@ -36,7 +34,6 @@ exports.saveReceta = async (req, res) => {
   }
 };
 
-// Obtener una receta por ID
 exports.getReceta = async (req, res) => {
   const { id } = req.params;
 
@@ -51,7 +48,6 @@ exports.getReceta = async (req, res) => {
   }
 };
 
-// Actualizar una receta por ID
 exports.updateReceta = async (req, res) => {
   const { id } = req.params;
   const datosActualizados = req.body;
@@ -67,7 +63,6 @@ exports.updateReceta = async (req, res) => {
   }
 };
 
-// Eliminar una receta por ID
 exports.deleteReceta = async (req, res) => {
   const { id } = req.params;
 
@@ -82,7 +77,6 @@ exports.deleteReceta = async (req, res) => {
   }
 };
 
-// Subir una imagen asociada a una receta
 exports.uploadImagen = async (req, res) => {
   const { id } = req.params;
 
@@ -94,7 +88,6 @@ exports.uploadImagen = async (req, res) => {
   const fileName = path.basename(filePath);
   const ext = path.extname(fileName).toLowerCase();
 
-  // Validar que sea una imagen
   if (!['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
     fs.unlinkSync(filePath); // Eliminar archivo no válido
     return res.status(400).json({ error: 'Formato de archivo no permitido' });
@@ -116,7 +109,6 @@ exports.uploadImagen = async (req, res) => {
   }
 };
 
-// Obtener una imagen por nombre de archivo
 exports.getImagen = (req, res) => {
   const { imagen } = req.params;
   const filePath = path.resolve(`./uploads/${imagen}`);

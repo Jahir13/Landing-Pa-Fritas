@@ -1,0 +1,70 @@
+---
+let users = [];
+
+// This should be done only once when needed, not on every render
+if (typeof window !== 'undefined' && window.fetch) {
+  try {
+    const response = await fetch('http://localhost:3000/users', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (response.ok) {
+      users = await response.json();
+      console.log('Usuarios obtenidos:', users);
+    } else {
+      console.error('Error al obtener usuarios:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error en la solicitud:', error);
+  }
+}
+
+export async function handleSubmit(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const email = formData.get('email');
+  const contraseña = formData.get('contraseña');
+
+  console.log('Intento de inicio de sesión con email:', email, 'y contraseña:', contraseña);
+
+  // We should not compare passwords on the client side. 
+  // Instead, we'll send this to the server for authentication.
+  const authResponse = await fetch('http://localhost:3000/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, contraseña }),
+  });
+
+  if (authResponse.ok) {
+    const user = await authResponse.json();
+    console.log('Usuario autenticado:', user);
+    localStorage.setItem('user', JSON.stringify(user));
+    window.location.href = '/';
+  } else {
+    const errorData = await authResponse.json();
+    console.error('Error de autenticación:', errorData);
+    alert('Usuario o contraseña incorrectos.');
+  }
+}
+---
+
+<form onSubmit={handleSubmit} class="bg-white p-6 shadow-md rounded-md max-w-md w-full">
+  <div class="mb-4">
+    <label for="email" class="block font-bold text-gray-600">Correo Electrónico</label>
+    <input type="email" name="email" id="email" required 
+      class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300">
+  </div>
+  <div class="mb-6">
+    <label for="contraseña" class="block font-bold text-gray-600">Contraseña</label>
+    <input type="password" name="contraseña" id="contraseña" required 
+      class="border border-gray-300 rounded-md p-2 w-full focus:outline-none focus:ring focus:ring-blue-300">
+  </div>
+  <button type="submit" class="bg-[#84B6F4] text-white font-bold py-2 px-4 rounded hover:bg-blue-500 transition">
+    Iniciar Sesión
+  </button>
+  <p class="mt-4 text-center">
+    ¿No tienes cuenta? <a href="/registro" class="text-blue-500 hover:underline">Regístrate aquí</a>
+  </p>
+</form>
