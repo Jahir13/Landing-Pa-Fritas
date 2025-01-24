@@ -6,7 +6,7 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   contraseña: { type: String, required: true },
   rol: { type: String, required: true, enum: ['admin', 'usuario'], default: 'usuario' },
-  fechaRegistro: { type: Date, default: Date.now }
+  fechaRegistro: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('User', UserSchema);
