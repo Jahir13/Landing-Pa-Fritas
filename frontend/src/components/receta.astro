@@ -1,18 +1,20 @@
 ---
 const response = await fetch('http://localhost:3000/recetas');
-const recetas = await response.json();
+const data = await response.json();
+const recetas = data.recetas || [];
 ---
 
 <div class="grid grid-cols-2 gap-8 justify-center items-center mx-auto my-5 px-5 max-w-4xl">
   {recetas.map(receta => (
     <a href={`/recetas/${receta.autor}`} class="mb-2 xl:mb-0 transition hover:scale-110">
-    <div class="border border-gray-200 rounded-lg p-4 transition-all duration-300 hover:border-[#84B6F4] hover:shadow-lg">
-      <div class="text-center">
-        <img src={receta.imagen} alt={receta.titulo} class="w-48 h-auto mx-auto">
-        <h3 class="mt-4 text-lg font-semibold text-gray-800">{receta.titulo}</h3>
-        <p class="mt-2 text-gray-600"> {receta.descripcion} </p>
+      <div class="border border-gray-200 rounded-lg p-4 transition-all duration-300 hover:border-[#84B6F4] hover:shadow-lg">
+        <div class="text-center">
+          <!-- Asegúrate de que la ruta de la imagen sea correcta -->
+          <img src={`/images/${receta.imagen}`} alt={receta.titulo} class="w-48 h-auto mx-auto" />
+          <h3 class="mt-4 text-lg font-semibold text-gray-800">{receta.titulo}</h3>
+          <p class="mt-2 text-gray-600"> {receta.descripcion} </p>
+        </div>
       </div>
-    </div>
     </a>
   ))}
 </div>

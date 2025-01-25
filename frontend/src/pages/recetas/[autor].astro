@@ -3,9 +3,9 @@ import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
     const response = await fetch('http://localhost:3000/recetas');
-    const recetas = await response.json();
-    console.log(recetas); // Revisar la estructura
-    
+    const data = await response.json();
+    const recetas = data.recetas || [];
+
     return recetas.map(receta => ({
         params: { autor: receta.autor },
         props: { receta },
@@ -50,7 +50,8 @@ const { _id, titulo, descripcion, ingredientes, preparacion, imagen, autor, esta
             {imagen && (
                 <div>
                     <h2 class="text-2xl font-bold text-[#84B6F4] mb-4">Imagen</h2>
-                    <img src={imagen} alt={titulo} class="w-full h-auto rounded-lg shadow-lg">
+                    <!-- Asegúrate de que la ruta de la imagen sea correcta -->
+                    <img src={`/images/${imagen}`} alt={titulo} class="w-full h-auto rounded-lg shadow-lg">
                 </div>
             )}
         </div>

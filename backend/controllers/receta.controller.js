@@ -2,122 +2,118 @@ const Receta = require('../models/receta.model');
 const fs = require('fs');
 const path = require('path');
 
-exports.getRecetas = async (req, res) => {
-  try {
-    const recetas = await Receta.find();
-    res.status(200).json(recetas);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener las recetas' });
-  }
-};
+const controller = {
+    inicio: function (req, res) {
+        return res.status(200).send({ message: "<h1>Hola desde Recetas</h1>" });
+    },
+    getRecetas: async function (req, res) {
+        try {
+            const recetas = await Receta.find({}).sort();
+            if (recetas.length === 0) {
+                return res.status(404).send({ message: 'No hay recetas' });
+            }
+            return res.status(200).send({ recetas });
+        } catch (error) {
+            return res.status(500).send({ message: 'Error al recuperar los datos' });
+        }
+    },
+    saveReceta: async function (req, res) {
+        try {
+            const receta = new Receta();
+            const params = req.body;
+            receta.titulo = params.titulo;
+            receta.descripcion = params.descripcion;
+            receta.ingredientes = params.ingredientes;
+            receta.preparacion = params.preparacion;
+            receta.estado = params.estado || 'pendiente';
+            receta.autor = params.autor;
+            receta.imagen = null;
 
-exports.saveReceta = async (req, res) => {
-  const { titulo, descripcion, ingredientes, preparacion, estado, autor } = req.body;
+            const recetaStored = await receta.save();
+            if (!recetaStored) {
+                return res.status(404).send({ message: 'No se guardó la receta' });
+            }
+            return res.status(201).send({ receta: recetaStored });
+        } catch (error) {
+            return res.status(500).send({ message: 'Error al guardar los datos' });
+        }
+    },
+    getReceta: async function (req, res) {
+        try {
+            const recetaId = req.params.id;
+            if (!recetaId) return res.status(404).send({ message: "La receta no existe" });
+            const receta = await Receta.findById(recetaId);
+            if (!receta) return res.status(404).send({ message: "La receta no existe" });
+            return res.status(200).send({ receta });
+        } catch (error) {
+            return res.status(500).send({ message: 'Error al recuperar los datos' });
+        }
+    },
+    updateReceta: async function (req, res) {
+        try {
+            const recetaId = req.params.id;
+            const update = req.body;
 
-  if (!titulo || !descripcion || !ingredientes || !preparacion || !autor) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-  }
+            const recetaUpdated = await Receta.findByIdAndUpdate(recetaId, update, { new: true });
+            if (!recetaUpdated) return res.status(404).send({ message: 'La receta no se ha actualizado' });
+            return res.status(200).send({ receta: recetaUpdated });
+        } catch (error) {
+            return res.status(500).send({ message: 'Error al actualizar los datos' });
+        }
+    },
+    deleteReceta: async function (req, res) {
+        try {
+            const recetaId = req.params.id;
+            const recetaRemoved = await Receta.findByIdAndDelete(recetaId);
+            if (!recetaRemoved) return res.status(404).send({ message: 'La receta no se puede eliminar' });
+            return res.status(200).send({ recetaRemoved });
+        } catch (error) {
+            return res.status(500).send({ message: 'Error al eliminar los datos' });
+        }
+    },
+    uploadImagen: async function (req, res) {
+      try {
+        const recetaId = req.params.id;
+        let fileName = 'Imagen no subida';
 
-  try {
-    const nuevaReceta = new Receta({
-      titulo,
-      descripcion,
-      ingredientes: ingredientes.split(','), // Convertir ingredientes a array
-      preparacion,
-      estado: estado || 'pendiente',
-      autor,
-    });
-    const recetaGuardada = await nuevaReceta.save();
-    res.status(201).json(recetaGuardada);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al guardar la receta' });
-  }
-};
+        if (req.files) {
+            const filePath = req.files.imagen.path;
+            const fileSplit = filePath.split('\\');
+            fileName = fileSplit[1];
+            const extSplit = fileName.split('.');
+            const fileExt = extSplit[1];
 
-exports.getReceta = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const receta = await Receta.findById(id);
-    if (!receta) {
-      return res.status(404).json({ error: 'Receta no encontrada' });
+            if (fileExt === 'png' || fileExt === 'jpg' || fileExt === 'jpeg' || fileExt === 'gif' || fileExt === 'PNG') {
+                const recetaUpdated = await Receta.findByIdAndUpdate(recetaId, { imagen: fileName }, { new: true });
+                if (!recetaUpdated) return res.status(404).send({ message: 'La receta no existe y no se puede subir la imagen' });
+                return res.status(200).send({ receta: recetaUpdated });
+            } else {
+                fs.unlink(filePath, (err) => {
+                    return res.status(200).send({ message: 'Extensión no válida' });
+                });
+            }
+        } else {
+            return res.status(200).send({ message: fileName });
+        }
+    } catch (err) {
+        return res.status(500).send({ message: 'La imagen no se ha subido' });
     }
-    res.status(200).json(receta);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener la receta' });
-  }
-};
+    },
+    getImagen: async function (req, res) {
+        try {
+            const file = req.params.imagen;
+            const pathFile = "./uploads/" + file;
 
-exports.updateReceta = async (req, res) => {
-  const { id } = req.params;
-  const datosActualizados = req.body;
+            const exists = await fs.promises.access(pathFile)
+                .then(() => true)
+                .catch(() => false);
 
-  try {
-    const recetaActualizada = await Receta.findByIdAndUpdate(id, datosActualizados, { new: true });
-    if (!recetaActualizada) {
-      return res.status(404).json({ error: 'Receta no encontrada' });
+            if (exists) return res.sendFile(path.resolve(pathFile));
+            else return res.status(200).send({ message: 'La imagen no existe' });
+        } catch (err) {
+            return res.status(500).send({ message: 'Error al recuperar la imagen' });
+        }
     }
-    res.status(200).json(recetaActualizada);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar la receta' });
-  }
 };
 
-exports.deleteReceta = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const recetaEliminada = await Receta.findByIdAndDelete(id);
-    if (!recetaEliminada) {
-      return res.status(404).json({ error: 'Receta no encontrada' });
-    }
-    res.status(200).json({ message: 'Receta eliminada correctamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar la receta' });
-  }
-};
-
-exports.uploadImagen = async (req, res) => {
-  const { id } = req.params;
-
-  if (!req.files || !req.files.file) {
-    return res.status(400).json({ error: 'No se ha proporcionado ningún archivo' });
-  }
-
-  const filePath = req.files.file.path;
-  const fileName = path.basename(filePath);
-  const ext = path.extname(fileName).toLowerCase();
-
-  if (!['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) {
-    fs.unlinkSync(filePath); // Eliminar archivo no válido
-    return res.status(400).json({ error: 'Formato de archivo no permitido' });
-  }
-
-  try {
-    const receta = await Receta.findById(id);
-    if (!receta) {
-      fs.unlinkSync(filePath);
-      return res.status(404).json({ error: 'Receta no encontrada' });
-    }
-
-    receta.imagen = fileName;
-    await receta.save();
-    res.status(200).json({ message: 'Imagen subida correctamente', receta });
-  } catch (error) {
-    fs.unlinkSync(filePath);
-    res.status(500).json({ error: 'Error al subir la imagen' });
-  }
-};
-
-exports.getImagen = (req, res) => {
-  const { imagen } = req.params;
-  const filePath = path.resolve(`./uploads/${imagen}`);
-
-  fs.exists(filePath, (exists) => {
-    if (exists) {
-      res.sendFile(filePath);
-    } else {
-      res.status(404).json({ error: 'Imagen no encontrada' });
-    }
-  });
-};
+module.exports = controller;

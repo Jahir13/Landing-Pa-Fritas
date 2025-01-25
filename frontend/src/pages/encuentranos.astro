@@ -1,49 +1,121 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Inicio from '../components/Inicio.astro';
+
+let loggedInUser = null;
+
+if (typeof window !== 'undefined') {
+  const userData = localStorage.getItem('user');
+  loggedInUser = userData ? JSON.parse(userData) : null;
+}
 ---
 
 <Layout title="encuentranos">
+  <div class="grid min-h-[100dvh] grid-rows-[auto,1fr,auto]">
+    <header class="flex items-center justify-between bg-[#84B6F4] p-4">
+      <div class="flex items-center">
+        <a href="/">
+          <img 
+            src="logo.webp" 
+            alt="Logo" 
+            class="h-20 hover:scale-110 transition-transform duration-300"
+          >
+        </a>
+      </div>
+      <nav class="flex items-center space-x-6">
+        <a href="/producto" class="text-white font-bold">PRODUCTOS</a>
+        <a href="/recetas" class="text-white font-bold">RECETAS</a>
+        <a href="/encuentranos" class="text-white font-bold">ENCUÉNTRANOS</a>
+      </nav>
+      <nav>
+        {loggedInUser?.nombre 
+          ? (
+            <div class="flex items-center space-x-4">
+              <span class="text-white font-bold">Hola, {loggedInUser.nombre}</span>
+              <button
+                onclick="localStorage.removeItem('user'); window.location.href = '/';"
+                class="text-white font-bold hover:underline"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          )
+          : <a href="/iniciar-sesion" class="text-white font-bold">Iniciar Sesión</a>}
+      </nav>
+    </header>
 
-	<div class="grid min-h-[100dvh] grid-rows-[auto,1fr,auto]">
+    <main class="p-8">
+      <h1 class="text-3xl font-bold text-center mb-8">Nuestras Sucursales</h1>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Sucursal 1 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+          <div class="p-4">
+            <h2 class="text-xl font-bold mb-2">Sucursal Centro</h2>
+            <p class="text-gray-600">Dirección: Calle Principal #123, Ciudad</p>
+          </div>
+        </div>
 
-		<header class="flex items-center justify-between bg-[#84B6F4] p-4">
-			<div class="flex items-center">
-			  <a href="/">
-				  <img 
-					src="logo.webp" 
-					alt="Logo" 
-					class="h-20 hover:scale-110 transition-transform duration-300"
-				  >
-			  </a>
-			</div>
-			<nav class="flex items-center space-x-6 ">
-			  <a href="/producto" class="text-white font-bold">PRODUCTOS</a>
-			  <a href="/recetas" class="text-white font-bold">RECETAS</a>
-			  <a href="/encuentranos" class="text-white font-bold">ENCUÉNTRANOS</a>
-			</nav>
-			<nav>
-			  <a href="#">Iniciar Sesion</a>
-			</nav>
-		</header>
-		
-		<main>
-            <p>
-                Hola
-            </p>
-		</main>		
-	  
-		<footer class="flex justify-around items-center bg-[#E6D588] py-4 mt-8">
-		  <div class="text-center">
-			<p class="font-bold">Contáctanos</p>
-		  </div>
-		  <div>
-			<p>Nuestras redes sociales</p>
-		  </div>
-		  <div class="text-center">
-			<p class="font-bold">Ven a vernos</p>
-		  </div>
-		</footer>
-	  </div>
-	
-</Layout>	
+        <!-- Sucursal 2 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+          <div class="p-4">
+            <h2 class="text-xl font-bold mb-2">Sucursal Norte</h2>
+            <p class="text-gray-600">Dirección: Avenida Norte #456, Ciudad</p>
+          </div>
+        </div>
+
+        <!-- Sucursal 3 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+          <div class="p-4">
+            <h2 class="text-xl font-bold mb-2">Sucursal Sur</h2>
+            <p class="text-gray-600">Dirección: Calle Sur #789, Ciudad</p>
+          </div>
+        </div>
+
+        <!-- Sucursal 4 -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+          <div class="p-4">
+            <h2 class="text-xl font-bold mb-2">Sucursal Este</h2>
+            <p class="text-gray-600">Dirección: Avenida Este #101, Ciudad</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="flex justify-around items-center bg-[#E6D588] py-4 mt-8">
+      <div class="text-center">
+        <p class="font-bold">Contáctanos</p>
+      </div>
+      <div>
+        <p>Nuestras redes sociales</p>
+      </div>
+      <div class="text-center">
+        <p class="font-bold">Ven a vernos</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Script para manejar el estado del usuario -->
+  <script>
+    // Obtener el usuario logueado desde localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    // Elementos del DOM
+    const userNav = document.querySelector("header nav:last-child");
+
+    if (user) {
+      // Mostrar el nombre del usuario y el botón de cerrar sesión
+      userNav.innerHTML = `
+        <div class="flex items-center space-x-4">
+          <button
+            onclick="localStorage.removeItem('user'); window.location.href = '/';"
+            class="text-white font-bold hover:underline"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      `;
+    } else {
+      // Mostrar el enlace "Iniciar Sesión"
+      userNav.innerHTML = `<a href="/iniciar-sesion" class="text-white font-bold">Iniciar Sesión</a>`;
+    }
+  </script>
+</Layout>

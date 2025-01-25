@@ -4,36 +4,37 @@ GET http://localhost:3000/recetas
 ### Recuperar una receta por ID
 GET http://localhost:3000/recetas/678f2c6dbe39fda40af74bcf
 
-### Crear una receta con POST
-POST http://localhost:3000/guardar-receta
-Content-Type: application/json
-
-{
-  "titulo": "Papas Gratinadas",
-  "descripcion": "Papas con una deliciosa capa de queso gratinado.",
-  "ingredientes": "Papas, Queso, Crema, Sal",
-  "preparacion": "Cortar las papas, añadir queso y crema, y gratinar en el horno.",
-  "estado": "pendiente",
-  "autor": "678f2bc6be39fda40af74bd0"
-}
-
 ### Actualizar una receta
-PUT http://localhost:3000/recetas/678f2c6dbe39fda40af74bcf
+PUT http://localhost:3000/recetas/678f2c6dbe39fda40af74bd4
 Content-Type: application/json
 
 {
   "estado": "aprobada"
 }
 
+### Crear una receta con POST
+POST http://localhost:3000/recetas
+Content-Type: application/json
+
+{
+  "titulo": "Receta Nuevaa",
+  "descripcion": "Deliciosas papas fritas clásicas con sal.",
+  "ingredientes": ["Papas", "Aceite", "Sal"],
+  "preparacion": "Cortar papas en rodajas, freír en aceite y añadir sal.",
+  "autor": "67944a67139b5e20beab46a9",
+  "estado": "pendiente"
+}
+
 ### Eliminar una receta
-DELETE http://localhost:3000/recetas/678f2c6dbe39fda40af74bd6
+DELETE http://localhost:3000/recetas/6794700e72cd9c3558271061
 
 ### Subir una imagen para una receta
-POST http://localhost:3000/subir-imagen/ID_DE_RECETA
-Content-Type: multipart/form-data
+POST http://localhost:3000/recetas/678f2c6dbe39fda40af74bd3/upload-imagen
+Content-Type: application/json
 
-file: @/ruta/a/la/imagen.jpg
-
+{
+  "imageUrl": "https://www.doritos.com/sites/doritos.com/files/doritos-cool-ranch-bacon-nachos-v2.jpg"
+}
 ### Obtener una imagen por su nombre
 GET http://localhost:3000/obtener-imagen/nombre_de_la_imagen.jpg
 
@@ -44,6 +45,52 @@ GET http://localhost:3000/users
 GET http://localhost:3000/users/678f2bc6be39fda40af74bd1
 
 ### Crear un nuevo usuario
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "nombre": "Lissette Flores",
+  "email": "aso@papasfritas.com",
+  "contraseña": "hashedpassword4",
+  "rol": "usuario"
+}
+
+### Iniciar sesión (éxito)
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "email": "juan@papasfritas.com",
+  "contraseña": "hashedpassword3"
+}
+
+### Iniciar sesión (credenciales incorrectas)
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "email": "juan@papasfritas.com",
+  "contraseña": "contraseñaIncorrecta"
+}
+
+### Iniciar sesión (campos faltantes)
+POST http://localhost:3000/users/login
+Content-Type: application/json
+
+{
+  "email": "juan@papasfritas.com"
+}
+
+### Crear un nuevo usuario (campos faltantes)
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "nombre": "Pamela Flores",
+  "email": "juan@papasfritas.com"
+}
+
+### Crear un nuevo usuario (email duplicado)
 POST http://localhost:3000/users
 Content-Type: application/json
 

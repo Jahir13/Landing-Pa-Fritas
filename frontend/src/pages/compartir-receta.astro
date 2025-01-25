@@ -1,0 +1,101 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+let loggedInUser = null;
+
+if (typeof window !== 'undefined') {
+  const userData = localStorage.getItem('user');
+  loggedInUser = userData ? JSON.parse(userData) : null;
+}
+---
+
+<Layout title="Compartir Receta">
+  <div class="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-50">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800 animate-fade-in-down">Compartir Receta</h1>
+    <form id="receta-form" class="w-full max-w-lg bg-white p-8 rounded-xl shadow-lg animate-fade-in-up">
+      <!-- Título de la receta -->
+      <div class="mb-6">
+        <label for="titulo" class="block text-gray-700 text-sm font-semibold mb-2">Título</label>
+        <input type="text" id="titulo" name="titulo" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ej: Tarta de Manzana" />
+        <p class="text-sm text-gray-500 mt-1">Escribe un título descriptivo para tu receta.</p>
+      </div>
+
+      <!-- Descripción de la receta -->
+      <div class="mb-6">
+        <label for="descripcion" class="block text-gray-700 text-sm font-semibold mb-2">Descripción</label>
+        <textarea id="descripcion" name="descripcion" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ej: Una deliciosa tarta de manzana con canela..."></textarea>
+        <p class="text-sm text-gray-500 mt-1">Describe brevemente tu receta.</p>
+      </div>
+
+      <!-- Ingredientes de la receta -->
+      <div class="mb-6">
+        <label for="ingredientes" class="block text-gray-700 text-sm font-semibold mb-2">Ingredientes (uno por línea)</label>
+        <textarea id="ingredientes" name="ingredientes" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ej: 3 manzanas&#10;1 taza de harina&#10;1 cucharadita de canela"></textarea>
+        <p class="text-sm text-gray-500 mt-1">Lista los ingredientes, uno por línea.</p>
+      </div>
+
+      <!-- Preparación de la receta -->
+      <div class="mb-6">
+        <label for="preparacion" class="block text-gray-700 text-sm font-semibold mb-2">Preparación</label>
+        <textarea id="preparacion" name="preparacion" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Ej: 1. Pelar y cortar las manzanas..."></textarea>
+        <p class="text-sm text-gray-500 mt-1">Describe los pasos para preparar la receta.</p>
+      </div>
+
+      <!-- Imagen de la receta -->
+      <div class="mb-6">
+        <label for="imagen" class="block text-gray-700 text-sm font-semibold mb-2">Imagen (JPG o PNG)</label>
+        <input type="file" id="imagen" name="imagen" accept=".jpg,.png" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+        <p class="text-sm text-gray-500 mt-1">Sube una imagen de tu receta en formato JPG o PNG.</p>
+      </div>
+
+      <!-- Botón de envío -->
+      <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-transform transform hover:scale-105">
+        Enviar Receta
+      </button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('receta-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const user = JSON.parse(localStorage.getItem('user'));
+
+      if (!user) {
+        alert('Debes iniciar sesión para compartir una receta.');
+        window.location.href = '/login';
+        return;
+      }
+
+      const data = {
+        titulo: formData.get('titulo'),
+        descripcion: formData.get('descripcion'),
+        ingredientes: formData.get('ingredientes').split('\n').filter(Boolean), // Convertir a array
+        preparacion: formData.get('preparacion'),
+        imagen: formData.get('imagen').name, // Nombre del archivo de imagen
+        autor: user._id, // ID del usuario logueado
+        estado: 'pendiente', // Estado por defecto
+        fechaEnvio: new Date().toISOString(), // Fecha actual
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/recetas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          alert('Receta enviada correctamente. Será revisada por nuestro equipo.');
+          window.location.href = '/recetas';
+        } else {
+          const errorData = await response.json();
+          alert(`Error al enviar la receta: ${errorData.message || 'Inténtalo de nuevo.'}`);
+        }
+      } catch (error) {
+        alert('Error de conexión. Inténtalo de nuevo.');
+      }
+    });
+  </script>
+</Layout>
