@@ -17,14 +17,13 @@ POST http://localhost:3000/recetas
 Content-Type: application/json
 
 {
-  "titulo": "Receta Nuevaa",
-  "descripcion": "Deliciosas papas fritas clásicas con sal.",
-  "ingredientes": ["Papas", "Aceite", "Sal"],
-  "preparacion": "Cortar papas en rodajas, freír en aceite y añadir sal.",
-  "autor": "67944a67139b5e20beab46a9",
+  "titulo": "Tarta de Manzana",
+  "descripcion": "Una deliciosa tarta de manzana con canela.",
+  "ingredientes": ["3 manzanas", "1 taza de harina", "1 cucharadita de canela"],
+  "preparacion": "1. Pelar y cortar las manzanas...",
+  "autor": "64f1a2b3c8e9f0a1b2c3d4e5",
   "estado": "pendiente"
 }
-
 ### Eliminar una receta
 DELETE http://localhost:3000/recetas/6794700e72cd9c3558271061
 

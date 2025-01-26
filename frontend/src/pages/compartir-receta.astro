@@ -56,46 +56,70 @@ if (typeof window !== 'undefined') {
   </div>
 
   <script>
-    document.getElementById('receta-form').addEventListener('submit', async (event) => {
-      event.preventDefault();
+  document.getElementById('receta-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
 
-      const formData = new FormData(event.target);
-      const user = JSON.parse(localStorage.getItem('user'));
+  const formData = new FormData(event.target); // Crear un FormData con los datos del formulario
+  const user = JSON.parse(localStorage.getItem('user'));
 
-      if (!user) {
-        alert('Debes iniciar sesión para compartir una receta.');
-        window.location.href = '/login';
+  if (!user) {
+    alert('Debes iniciar sesión para compartir una receta.');
+    window.location.href = '/login';
+    return;
+  }
+
+  // Agregar el ID del usuario al FormData
+  formData.append('autor', user._id);
+
+  try {
+    // Enviar la receta sin la imagen primero
+    const responseReceta = await fetch('http://localhost:3000/recetas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        titulo: formData.get('titulo'),
+        descripcion: formData.get('descripcion'),
+        ingredientes: formData.get('ingredientes').split('\n').filter(Boolean),
+        preparacion: formData.get('preparacion'),
+        autor: user._id,
+        estado: 'pendiente',
+      }),
+    });
+
+    if (!responseReceta.ok) {
+      const errorData = await responseReceta.json();
+      alert(`Error al enviar la receta: ${errorData.message || 'Inténtalo de nuevo.'}`);
+      return;
+    }
+
+    const recetaCreada = await responseReceta.json();
+    const recetaId = recetaCreada.receta._id;
+
+    // Enviar la imagen después de crear la receta
+    if (formData.get('imagen')) {
+      const formDataImagen = new FormData();
+      formDataImagen.append('imagen', formData.get('imagen'));
+
+      const responseImagen = await fetch(`http://localhost:3000/recetas/upload-imagen/${recetaId}`, {
+        method: 'POST',
+        body: formDataImagen, // No necesitas headers para FormData
+      });
+
+      if (!responseImagen.ok) {
+        const errorData = await responseImagen.json();
+        alert(`Error al subir la imagen: ${errorData.message || 'Inténtalo de nuevo.'}`);
         return;
       }
 
-      const data = {
-        titulo: formData.get('titulo'),
-        descripcion: formData.get('descripcion'),
-        ingredientes: formData.get('ingredientes').split('\n').filter(Boolean), // Convertir a array
-        preparacion: formData.get('preparacion'),
-        imagen: formData.get('imagen').name, // Nombre del archivo de imagen
-        autor: user._id, // ID del usuario logueado
-        estado: 'pendiente', // Estado por defecto
-        fechaEnvio: new Date().toISOString(), // Fecha actual
-      };
+      alert('Receta e imagen enviadas correctamente.');
+    } else {
+      alert('Receta enviada correctamente, pero no se subió ninguna imagen.');
+    }
 
-      try {
-        const response = await fetch('http://localhost:3000/recetas', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        if (response.ok) {
-          alert('Receta enviada correctamente. Será revisada por nuestro equipo.');
-          window.location.href = '/recetas';
-        } else {
-          const errorData = await response.json();
-          alert(`Error al enviar la receta: ${errorData.message || 'Inténtalo de nuevo.'}`);
-        }
-      } catch (error) {
-        alert('Error de conexión. Inténtalo de nuevo.');
-      }
-    });
+    window.location.href = '/recetas';
+  } catch (error) {
+    alert('Error de conexión. Inténtalo de nuevo.');
+  }
+});
   </script>
 </Layout>

@@ -21,21 +21,29 @@ const controller = {
         try {
             const receta = new Receta();
             const params = req.body;
+    
+            // Verifica que los datos requeridos estén presentes
+            if (!params.titulo || !params.descripcion || !params.ingredientes || !params.preparacion || !params.autor) {
+                return res.status(400).send({ message: 'Faltan datos requeridos' });
+            }
+    
             receta.titulo = params.titulo;
             receta.descripcion = params.descripcion;
             receta.ingredientes = params.ingredientes;
             receta.preparacion = params.preparacion;
             receta.estado = params.estado || 'pendiente';
             receta.autor = params.autor;
-            receta.imagen = null;
-
+            receta.imagen = null; // La imagen se subirá por separado
+    
             const recetaStored = await receta.save();
             if (!recetaStored) {
                 return res.status(404).send({ message: 'No se guardó la receta' });
             }
+    
             return res.status(201).send({ receta: recetaStored });
         } catch (error) {
-            return res.status(500).send({ message: 'Error al guardar los datos' });
+            console.error('Error en saveReceta:', error); // Imprime el error en la consola del servidor
+            return res.status(500).send({ message: 'Error al guardar los datos', error: error.message });
         }
     },
     getReceta: async function (req, res) {
